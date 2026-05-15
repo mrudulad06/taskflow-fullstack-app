@@ -2,6 +2,7 @@ package com.taskflow.backend.controller;
 
 import com.taskflow.backend.model.Task;
 import com.taskflow.backend.repository.TaskRepository;
+import com.taskflow.backend.service.TaskService;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -11,19 +12,19 @@ import java.util.List;
 @CrossOrigin("*")
 public class TaskController {
 
-    private final TaskRepository taskRepository;
+    private final TaskService taskService;
 
-    public TaskController(TaskRepository taskRepository) {
-        this.taskRepository = taskRepository;
+    public TaskController(TaskService taskService) {
+        this.taskService = taskService;
     }
 
     @GetMapping
     public List<Task> getAllTasks() {
-        return taskRepository.findAll();
+        return taskService.getAllTasks();
     }
 
     @PostMapping
     public Task createTask(@RequestBody Task task) {
-        return taskRepository.save(task);
+        return taskService.createTask(task);
     }
 }
