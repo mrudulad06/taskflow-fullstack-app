@@ -1,3 +1,5 @@
+import "./App.css";
+
 import { useEffect, useState } from "react";
 
 function App() {
@@ -6,6 +8,12 @@ function App() {
 
     const [title, setTitle] = useState("");
     const [description, setDescription] = useState("");
+
+    const [editingId, setEditingId] = useState(null);
+
+    const [editTitle, setEditTitle] = useState("");
+
+    const [editDescription, setEditDescription] = useState("");
 
     useEffect(() => {
         fetch("http://localhost:8080/tasks")
@@ -47,42 +55,175 @@ function App() {
 
     };
 
+    const startEdit = (task) => {
+        setEditingId(task.id);
+        setEditTitle(task.title);
+        setEditDescription(task.description);
+    };
+
+    const saveEdit = (id) => {
+        fetch(`http://localhost:8080/tasks/${id}`, {
+            method: "PUT",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+                title: editTitle,
+                description: editDescription,
+                completed: false,
+            }),
+        })
+            .then((response) => response.json())
+            .then((updatedTask) => {
+
+                setTasks(
+                    tasks.map((task) =>
+                        task.id === id ? updatedTask : task
+                    )
+                );
+
+                setEditingId(null);
+            });
+    }
+    const toggleComplete = (task) => {
+
+        fetch(`http://localhost:8080/tasks/${task.id}`, {
+            method: "PUT",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+                title: task.title,
+                description: task.description,
+                completed: !task.completed,
+            }),
+        })
+            .then((response) => response.json())
+            .then((updatedTask) => {
+
+                setTasks(
+                    tasks.map((t) =>
+                        t.id === task.id ? updatedTask : t
+                    )
+                );
+
+            });
+
+    };
+
     return (
-        <div>
-            <h1>TaskFlow</h1>
 
-            <div>
-                <input
-                    type="text"
-                    placeholder="Enter title"
-                    value={title}
-                    onChange={(e) => setTitle(e.target.value)}
-                />
+        <div className="app-layout">
 
-                <input
-                    type="text"
-                    placeholder="Enter description"
-                    value={description}
-                    onChange={(e) => setDescription(e.target.value)}
-                />
+            <div className="sidebar">
 
-                <button onClick={addTask}>
-                    Add Task
-                </button>
+                <h2>TaskFlow</h2>
+
+                <ul>
+                    <li>🏠 Home</li>
+                    <li>👤 Profile</li>
+                    <li>📋 Tasks</li>
+                    <li>⚙ Settings</li>
+                </ul>
+
             </div>
 
-            {tasks.map((task) => (
-                <div key={task.id}>
-                    <h3>{task.title}</h3>
-                    <p>{task.description}</p>
+            <div className="main-content">
 
-                    <button onClick={() => deleteTask(task.id)}>
-                        Delete
-                    </button>
+                <div className="container">
+
+                    <h1>Task Dashboard</h1>
+
+                    <div>
+
+                        <input
+                            type="text"
+                            placeholder="Enter title"
+                            value={title}
+                            onChange={(e) => setTitle(e.target.value)}
+                        />
+
+                        <input
+                            type="text"
+                            placeholder="Enter description"
+                            value={description}
+                            onChange={(e) => setDescription(e.target.value)}
+                        />
+
+                        <button onClick={addTask}>
+                            Add Task
+                        </button>
+
+                    </div>
+
+                    {tasks.map((task) => (
+
+                        <div key={task.id} className="task-card">
+
+                            {editingId === task.id ? (
+
+                                <div>
+
+                                    <input
+                                        type="text"
+                                        value={editTitle}
+                                        onChange={(e) => setEditTitle(e.target.value)}
+                                    />
+
+                                    <input
+                                        type="text"
+                                        value={editDescription}
+                                        onChange={(e) => setEditDescription(e.target.value)}
+                                    />
+
+                                    <button onClick={() => saveEdit(task.id)}>
+                                        Save
+                                    </button>
+
+                                </div>
+
+                            ) : (
+
+                                <div>
+
+                                    <div className="task-header">
+
+                                        <input
+                                            type="checkbox"
+                                            checked={task.completed}
+                                            onChange={() => toggleComplete(task)}
+                                        />
+
+                                        <h3 className={task.completed ? "completed-task" : ""}>
+                                            {task.title}
+                                        </h3>
+
+                                    </div>
+
+                                    <p>{task.description}</p>
+
+                                    <button onClick={() => startEdit(task)}>
+                                        Edit
+                                    </button>
+
+                                    <button onClick={() => deleteTask(task.id)}>
+                                        Delete
+                                    </button>
+
+                                </div>
+
+                            )}
+
+                        </div>
+
+                    ))}
+
                 </div>
-            ))}
+
+            </div>
 
         </div>
+
     );
 }
 
