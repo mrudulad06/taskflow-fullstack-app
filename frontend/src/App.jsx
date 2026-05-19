@@ -2,6 +2,16 @@ import "./App.css";
 
 import { useEffect, useState } from "react";
 
+import {
+    Routes,
+    Route,
+    Link,
+} from "react-router-dom";
+
+import Home from "./pages/Home.jsx";
+import Profile from "./pages/Profile.jsx";
+import Tasks from "./pages/Tasks.jsx";
+
 function App() {
 
     const [tasks, setTasks] = useState([]);
@@ -110,7 +120,6 @@ function App() {
             });
 
     };
-
     return (
 
         <div className="app-layout">
@@ -120,10 +129,19 @@ function App() {
                 <h2>TaskFlow</h2>
 
                 <ul>
-                    <li>🏠 Home</li>
-                    <li>👤 Profile</li>
-                    <li>📋 Tasks</li>
-                    <li>⚙ Settings</li>
+
+                    <li>
+                        <Link to="/">🏠 Home</Link>
+                    </li>
+
+                    <li>
+                        <Link to="/profile">👤 Profile</Link>
+                    </li>
+
+                    <li>
+                        <Link to="/tasks">📋 Tasks</Link>
+                    </li>
+
                 </ul>
 
             </div>
@@ -132,91 +150,42 @@ function App() {
 
                 <div className="container">
 
-                    <h1>Task Dashboard</h1>
+                    <Routes>
 
-                    <div>
-
-                        <input
-                            type="text"
-                            placeholder="Enter title"
-                            value={title}
-                            onChange={(e) => setTitle(e.target.value)}
+                        <Route
+                            path="/"
+                            element={
+                                <Tasks
+                                    tasks={tasks}
+                                    title={title}
+                                    setTitle={setTitle}
+                                    description={description}
+                                    setDescription={setDescription}
+                                    addTask={addTask}
+                                    deleteTask={deleteTask}
+                                    editingId={editingId}
+                                    editTitle={editTitle}
+                                    setEditTitle={setEditTitle}
+                                    editDescription={editDescription}
+                                    setEditDescription={setEditDescription}
+                                    saveEdit={saveEdit}
+                                    startEdit={startEdit}
+                                    toggleComplete={toggleComplete}
+                                />
+                            }
                         />
 
-                        <input
-                            type="text"
-                            placeholder="Enter description"
-                            value={description}
-                            onChange={(e) => setDescription(e.target.value)}
+                        <Route
+                            path="/profile"
+                            element={<Profile/>}
                         />
 
-                        <button onClick={addTask}>
-                            Add Task
-                        </button>
+                        <Route
+                            path="/tasks"
+                            element={<Tasks/>}
+                        />
 
-                    </div>
-
-                    {tasks.map((task) => (
-
-                        <div key={task.id} className="task-card">
-
-                            {editingId === task.id ? (
-
-                                <div>
-
-                                    <input
-                                        type="text"
-                                        value={editTitle}
-                                        onChange={(e) => setEditTitle(e.target.value)}
-                                    />
-
-                                    <input
-                                        type="text"
-                                        value={editDescription}
-                                        onChange={(e) => setEditDescription(e.target.value)}
-                                    />
-
-                                    <button onClick={() => saveEdit(task.id)}>
-                                        Save
-                                    </button>
-
-                                </div>
-
-                            ) : (
-
-                                <div>
-
-                                    <div className="task-header">
-
-                                        <input
-                                            type="checkbox"
-                                            checked={task.completed}
-                                            onChange={() => toggleComplete(task)}
-                                        />
-
-                                        <h3 className={task.completed ? "completed-task" : ""}>
-                                            {task.title}
-                                        </h3>
-
-                                    </div>
-
-                                    <p>{task.description}</p>
-
-                                    <button onClick={() => startEdit(task)}>
-                                        Edit
-                                    </button>
-
-                                    <button onClick={() => deleteTask(task.id)}>
-                                        Delete
-                                    </button>
-
-                                </div>
-
-                            )}
-
-                        </div>
-
-                    ))}
+                    </Routes>
 
                 </div>
 
